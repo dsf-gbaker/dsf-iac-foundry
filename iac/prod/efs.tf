@@ -1,3 +1,4 @@
+/*
 resource "aws_efs_file_system" "foundry-efs" {
   creation_token    = var.efs-creation-token
   performance_mode  = var.efs-performance-mode
@@ -30,3 +31,4 @@ resource "aws_efs_access_point" "foundry-access-point" {
     }
   }
 }
+*/

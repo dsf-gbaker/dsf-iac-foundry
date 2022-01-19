@@ -1,8 +1,0 @@
-#!/bin/bash
-echo "-- INSTALL amazon-efs-utils"
-sudo yum install -y amazon-efs-utils
-echo "-- Mount Foundry NFS"
-echo "-- EFS: ${efs}"
-echo "-----------------------"
-sudo mkdir /foundrydata
-sudo mount -t efs -o tls ${efs}:/ /foundrydata
