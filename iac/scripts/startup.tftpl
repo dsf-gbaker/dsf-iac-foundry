@@ -1,0 +1,8 @@
+#!/bin/bash
+# NOTE: If you run into permission issues,
+#   when running this script, you may
+#   need to use sudo
+
+# Start running the server
+cd ${serverdir}
+node main.js --dataPath=${datadir} --port=${port}

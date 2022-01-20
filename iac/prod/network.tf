@@ -15,9 +15,7 @@ resource "aws_security_group" "foundry-sg" {
     from_port   = var.foundry-port
     to_port     = var.foundry-port
     protocol    = "tcp"
-    cidr_blocks = [
-      aws_vpc.foundry-vpc.cidr_block
-    ]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # foundry udp
@@ -25,9 +23,7 @@ resource "aws_security_group" "foundry-sg" {
     from_port   = var.foundry-port
     to_port     = var.foundry-port
     protocol    = "udp"
-    cidr_blocks = [
-      aws_vpc.foundry-vpc.cidr_block
-    ]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # ssh
@@ -76,11 +72,13 @@ resource "aws_subnet" "public" {
   availability_zone = var.availability-zone
 }
 
+/*
 resource "aws_subnet" "efs" {
   cidr_block        = "${cidrsubnet(aws_vpc.foundry-vpc.cidr_block, 8, 8)}"
   vpc_id            = aws_vpc.foundry-vpc.id
   availability_zone = var.availability-zone
 }
+*/
 
 ## IG & ROUTES
 resource "aws_internet_gateway" "foundry" {

@@ -1,3 +1,8 @@
+variable "foundry-url" {
+  default = ""
+  type    = string
+}
+
 variable "owner" {
   default = "beerskunk"
   type    = string
@@ -97,7 +102,28 @@ variable "cidr-vpc" {
   type    = string
 }
 
+## FOUNDRY
 variable "foundry-port" {
-  default = 30000
+  default = 80
   type    = number
+}
+
+variable "foundry-server-dir" {
+  default = "/foundry/server"
+  type    = string
+}
+
+variable "foundry-data-dir" {
+  default = "/foundry/data"
+  type    = string
+}
+
+variable "foundry-major-v" {
+  type        = number
+  description = "The major version to use when looking up the AMI" 
+}
+
+variable "foundry-minor-v" {
+  type        = number
+  description = "The minor version to use when looking up the AMI"
 }
