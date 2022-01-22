@@ -28,6 +28,21 @@ variable "availability-zone" {
   type    = string
 }
 
+variable "availability-zone2" {
+  default = "us-east-1b"
+  type    = string
+}
+
+variable "ssl-cert-arn" {
+  default = ""
+  type    = string
+}
+
+variable "hosted-zone-id" {
+  default = ""
+  type    = string
+}
+
 ## EBS
 variable "ebs-root-size" {
   default = 30
