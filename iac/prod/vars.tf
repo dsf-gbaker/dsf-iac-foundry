@@ -44,23 +44,28 @@ variable "hosted-zone-id" {
 }
 
 ## EBS
-variable "ebs-root-size" {
-  default = 30
+variable "ebs-data-size" {
+  default = 20
   type    = number
 }
 
-variable "ebs-root-type" {
+variable "ebs-data-type" {
   default = "gp2"
   type    = string
 }
 
-variable "ebs-root-snapshot-id" {
+variable "ebs-data-fstype" {
+  default = "xfs"
+  type    = string
+}
+
+variable "ebs-data-snapshot-id" {
   default = ""
   type    = string
 }
 
-variable "ebs-root-device-name" {
-  default = "/dev/sda1"
+variable "ebs-data-device-name" {
+  default = "/dev/xvdf"
   type    = string
 }
 
@@ -129,7 +134,7 @@ variable "foundry-server-dir" {
 }
 
 variable "foundry-data-dir" {
-  default = "/foundry/data"
+  default = "/foundrydata"
   type    = string
 }
 
@@ -141,4 +146,9 @@ variable "foundry-major-v" {
 variable "foundry-minor-v" {
   type        = number
   description = "The minor version to use when looking up the AMI"
+}
+
+variable "foundry-service-filename" {
+  default = "foundry.service"
+  type    = string
 }
