@@ -35,12 +35,23 @@ variable "group-id" {
   type = number
 }
 
+variable "root-ebs-size" {
+  type = number
+}
+
 source "amazon-ebs" "foundry" {
   ami_name      = "foundry-v${var.foundry-version}"
   instance_type = "${var.instance-type}"
   region        = "${var.region}"
   source_ami    = "${var.ami-source}"
   ssh_username  = "${var.ssh-user}"
+
+  launch_block_device_mappings {
+    device_name = "/dev/xvda"
+    volume_size = var.root-ebs-size
+    volume_type = "gp2"
+    delete_on_termination = true
+  }
 }
 
 build {
@@ -67,8 +78,7 @@ build {
   provisioner "shell" {
     inline = [
       "echo -- Create Foundry Directory",
-      "sudo mkdir -p ${var.foundry-dir}/server",
-      "sudo mkdir -p ${var.foundry-dir}/data",
+      "sudo mkdir -p ${var.foundry-dir}/server"
     ]
   }
 
@@ -83,30 +93,15 @@ build {
     ]
   }
 
-  /*
-  # create the data directory
-  provisioner "shell" {
-    inline = [
-      "echo -- Create Data Directory",
-      "sudo mkdir ${var.data-dir}"
-    ]
-  }
-
-  # set data dir permissions
-  # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Tutorials.WebServerDB.CreateWebServer.html
-  provisioner "shell" {
-    inline = [
-      "sudo chown -R ${var.ssh-user}:foundry ${var.data-dir}",
-      "sudo chmod 2775 ${var.data-dir}",
-      "sudo find ${var.data-dir} -type d -exec sudo chmod 2775 {} \\;",
-      "sudo find ${var.data-dir} -type f -exec sudo chmod 0664 {} \\;"
-    ]
-  }
-  */
-
   # copy the server files
   provisioner "file" {
     source      = "../../foundry/server/"
     destination = "${var.foundry-dir}/server"
+  }
+
+  # copy foundry systemd service file
+  provisioner "file" {
+    source      = "./scripts/foundry.service"
+    destination = "/tmp/foundry.service"
   }
 }

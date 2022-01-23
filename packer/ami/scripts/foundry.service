@@ -1,0 +1,15 @@
+[Unit]
+Description=Foundry VTT
+
+[Service]
+ExecStart=/usr/bin/node main.js --dataPath=/foundrydata --port=80
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=foundry-vtt
+WorkingDirectory=/foundry/server
+Group=foundry
+
+[Install]
+WantedBy=multi-user.target

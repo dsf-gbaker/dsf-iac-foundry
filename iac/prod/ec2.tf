@@ -32,8 +32,11 @@ resource "aws_instance" "foundry" {
 
   user_data = templatefile("../scripts/startup.tftpl", {
     serverdir: var.foundry-server-dir,
+    datadevicename: var.ebs-data-device-name,
+    fstype: var.ebs-data-fstype,
     datadir: var.foundry-data-dir,
-    port: var.foundry-port
+    port: var.foundry-port,
+    servicefile: var.foundry-service-filename
   })
   
   vpc_security_group_ids = [
@@ -41,7 +44,7 @@ resource "aws_instance" "foundry" {
   ]
 
   root_block_device {
-    volume_size           = "20" # GiB
+    volume_size           = "8" # GiB
     volume_type           = "gp2"
     delete_on_termination = true
   }
@@ -125,4 +128,51 @@ resource "aws_lb_target_group_attachment" "foundry" {
     aws_instance.foundry,
     aws_lb_target_group.foundry-http
   ]
+}
+
+resource "aws_ebs_volume" "data" {
+  // snapshot_id = data.aws_ebs_snapshot.data-snapshot != null ? data.aws_ebs_snapshot.data-snapshot.id : null
+  availability_zone = var.availability-zone
+  size = var.ebs-data-size
+
+  tags = {
+    Type = "Data"
+  }
+}
+
+resource "aws_ebs_snapshot" "data" {
+  volume_id = aws_ebs_volume.data.id
+}
+
+/*
+data "aws_ebs_snapshot" "data-snapshot" {
+  most_recent = true
+  
+  filter {
+    name    = "tag:Environment"
+    values  = [var.environment]
+  }
+
+  filter {
+    name    = "tag:Name"
+    values  = [var.project-name]
+  }
+
+  filter {
+    name    = "tag:Type"
+    values  = ["Data"]
+  }
+
+  depends_on = [
+    aws_ebs_snapshot.data
+  ]
+}
+*/
+
+resource "aws_volume_attachment" "data" {
+  device_name = var.ebs-data-device-name
+  volume_id   = aws_ebs_volume.data.id
+  instance_id = aws_instance.foundry.id
+
+  stop_instance_before_detaching = true
 }

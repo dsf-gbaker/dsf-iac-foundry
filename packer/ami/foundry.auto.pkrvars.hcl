@@ -5,3 +5,4 @@ ami-source      = "ami-0789681fae8b18e56"
 ssh-user        = "ec2-user"
 foundry-dir     = "/foundry"
 group-id        = 3700
+root-ebs-size   = 8
