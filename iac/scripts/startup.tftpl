@@ -1,75 +1,100 @@
+Content-Type: multipart/mixed; boundary="//"
+MIME-Version: 1.0
+
+--//
+Content-Type: text/cloud-config; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cloud-config.txt"
+
+#cloud-config
+cloud_final_modules:
+- [scripts-user, always]
+
+--//
+Content-Type: text/x-shellscript; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="userdata.txt"
+
 #!/bin/bash
-# NOTE: If you run into permission issues,
-#   when running this script, you may
-#   need to use sudo
+# NOTE: EC2 User Data is run as root
+# so you should not need sudo here
 
-echo "-- CHECKING EBS FORMATTING"
-echo "-- EBS DEVICE: ${datadevicename}"
-echo "-- Expected FileSystem: ${fstype}"
-
-# Make sure the dataPath is mounted and formatted
-# since it could be a fresh volume
-if df -PT ${datadevicename} | grep ${fstype};
+# Check if foundry service file already exists
+if (test -f /etc/systemd/system/${servicefile});
 then
-  # the mount point is formatted correctly
-  # so we need to format it...
-  echo "-- DATA EBS FORMATTED AS ${fstype}"
-else
+  echo "-- STOP FOUNDRY SERVICE"
+  systemctl stop foundry.service
+fi
 
-  echo "-- DATA EBS FORMATTED INCORRECTLY"
-  echo "-- FORMAT IS CURRENTLY:"
-  df -PT ${datadevicename}
+# Wait for the EBS Data Volume to be available
+max=10
+count=0
+elapsed=0
+until (test -e ${datadevicename})
+do
+  echo "-- WAITING FOR EBS DATA VOLUME...$${elapsed}s"
 
-  echo "-- FORMATTING DRIVE"
+  if (test $count -ge $max);
+  then
+    echo "-- WAITED TOO LONG...BAILING"
+    break
+  fi
+
+  sleep 10
+  ((count=$count+1))
+  ((elapsed=$count * 10))
+done
+
+if (test $count -lt $max);
+then
+  # Attempt to format drive
+  echo "-- CHECKING EBS FORMATTING"
+  echo "-- EBS DEVICE: ${datadevicename}"
+  echo "-- FORMATTING DRIVE as ${fstype}"
   mkfs -t ${fstype} ${datadevicename}
-  echo "-- FORMAT COMPLETE"
-  echo "-- FORMAT IS NOW:"
-  df -PT ${datadevicename}
-fi
 
-echo "-- CHECKING DATA DIRECTORY MOUNT"
+  echo "-- CHECKING DATA DIRECTORY MOUNT"
 
-# Make sure our data directory is mounted
-if mountpoint -q ${datadir};
-then
-  echo "-- DATA DIRECTORY ALREADY MOUNTED"
-else
-  echo "-- MOUNTING DATA DIRECTORY"
-  mkdir ${datadir}
-  mount ${datadevicename} ${datadir}
-fi
+  # Make sure our data directory is mounted
+  if mountpoint -q ${datadir};
+  then
+    echo "-- DATA DIRECTORY ALREADY MOUNTED"
+  else
+    echo "-- MOUNTING DATA DIRECTORY"
+    mkdir ${datadir}
+    mount ${datadevicename} ${datadir}
+  fi
 
-# Grant permissions
-echo "-- GRANTING PERMISSIONS"
-echo "-- creating application user"
-useradd -g foundry foundryapp
-chown -R foundryapp:foundry ${datadir}
-chmod 2775 ${datadir}
-find ${datadir} -type d -exec sudo chmod 2775 {} \;
-find ${datadir} -type f -exec sudo chmod 0664 {} \;
-echo "-- user created and permissions granted"
+  # Grant permissions
+  echo "-- GRANTING PERMISSIONS"
+  echo "-- creating application user"
+  useradd -g foundry foundryapp
+  chown -R foundryapp:foundry ${datadir}
+  chmod 2775 ${datadir}
+  find ${datadir} -type d -exec sudo chmod 2775 {} \;
+  find ${datadir} -type f -exec sudo chmod 0664 {} \;
+  echo "-- user created and permissions granted"
 
-# Application ENV
-echo "-- SETTING ENV VARIABLES"
-export FOUNDRY_VTT_DATA_PATH=${datadir}
+  echo "-- CHECKING FOR SERVICE FILE"
+  # Copy service file to systemd
+  if (test -f /tmp/${servicefile});
+  then
+    echo "-- found service file ${servicefile}"
+    mv /tmp/${servicefile} /etc/systemd/system
+    echo "-- file moved"
+    chown root:foundry /etc/systemd/system/${servicefile}
+  else
+    echo "-- Service File NOT Found"
+  fi
 
-echo "-- CHECKING FOR SERVICE FILE"
-# Copy service file to systemd
-if [ -f `/tmp/${servicefile}`];
-then
-  echo "-- found service file ${servicefile}"
-  mv /tmp/${servicefile} /etc/systemd/system
-  echo "-- file moved"
-  chown root:foundry /etc/systemd/system/${servicefile}
   # Enable service
   echo "-- ENABLE AND START SERVICE"
   systemctl enable foundry.service
   systemctl start foundry.service
   systemctl status foundry.service
-else
-  echo "-- ERROR: Service File NOT Found"
+
 fi
 
-# Start running the server
-# cd ${serverdir}
-# node main.js --dataPath=${datadir} --port=${port}
+--//--

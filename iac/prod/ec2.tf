@@ -136,7 +136,7 @@ resource "aws_ebs_volume" "data" {
   size = var.ebs-data-size
 
   tags = {
-    Type = "Data"
+    Type = "data"
   }
 }
 
