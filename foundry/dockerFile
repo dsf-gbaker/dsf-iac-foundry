@@ -1,8 +1,0 @@
-FROM node:16.13.2-alpine3.15
-EXPOSE 30000/tcp
-EXPOSE 30000/udp
-WORKDIR /foundryvtt
-COPY ./server server/
-RUN mkdir data/
-ENTRYPOINT ["node","server/main.js"]
-CMD ["--dataPath=/foundryvtt/data"]

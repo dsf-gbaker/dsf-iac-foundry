@@ -9,12 +9,12 @@ variable "owner" {
 }
 
 variable "project-name" {
-  default = "foundryvtt"
+  default = "dsf-foundryvtt"
   type    = string
 }
 
 variable "environment" {
-  default = "staging"
+  default = ""
   type    = string
 }
 
@@ -25,11 +25,6 @@ variable "region" {
 
 variable "availability-zone" {
   default = "us-east-1a"
-  type    = string
-}
-
-variable "availability-zone2" {
-  default = "us-east-1b"
   type    = string
 }
 
@@ -59,60 +54,14 @@ variable "ebs-data-fstype" {
   type    = string
 }
 
-variable "ebs-data-snapshot-id" {
-  default = ""
-  type    = string
-}
-
 variable "ebs-data-device-name" {
   default = "/dev/xvdf"
   type    = string
 }
 
 ## EC2
-variable "ec2-ami" {
-  default = ""
-  type    = string
-}
-
 variable "ec2-type" {
   default = "t2.micro"
-  type    = string
-}
-
-# EFS
-variable "efs-creation-token" {
-  default = "foundry-efs"
-  type    = string
-}
-
-variable "efs-performance-mode" {
-  default = "generalPurpose"
-  type    = string
-}
-
-variable "efs-lifecycle-policy" {
-  default = "AFTER_30_DAYS"
-  type    = string
-}
-
-variable "efs-port" {
-  default = 2049
-  type    = number
-}
-
-variable "efs-posix-gid" {
-  default = 3700
-  type    = number
-}
-
-variable "efs-posix-uid" {
-  default = 3700
-  type    = number
-}
-
-variable "efs-root-path" {
-  default = "/foundry/data"
   type    = string
 }
 
@@ -123,6 +72,9 @@ variable "cidr-vpc" {
 }
 
 ## FOUNDRY
+## The following values are passed into the User Data
+## startup template for the EC2 instance and are used
+## when the instance starts or reboots
 variable "foundry-port" {
   default = 80
   type    = number
@@ -141,11 +93,6 @@ variable "foundry-data-dir" {
 variable "foundry-major-v" {
   type        = number
   description = "The major version to use when looking up the AMI" 
-}
-
-variable "foundry-minor-v" {
-  type        = number
-  description = "The minor version to use when looking up the AMI"
 }
 
 variable "foundry-service-filename" {
