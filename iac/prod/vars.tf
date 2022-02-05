@@ -61,7 +61,7 @@ variable "ebs-data-device-name" {
 
 ## EC2
 variable "ec2-type" {
-  default = "t2.micro"
+  default = "t4g.micro"
   type    = string
 }
 

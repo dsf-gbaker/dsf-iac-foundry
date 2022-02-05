@@ -38,7 +38,7 @@ resource "aws_instance" "foundry" {
   instance_type               = var.ec2-type
   subnet_id                   = data.terraform_remote_state.dsf.outputs.public_subnet_id
   key_name                    = aws_key_pair.foundry-key.key_name
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 
   user_data = templatefile("../scripts/startup.tftpl", {
     serverdir: var.foundry-server-dir,
@@ -60,6 +60,8 @@ resource "aws_instance" "foundry" {
   }
 }
 
+// TODO: Check if you need to remap the state to an existing ebs volume
+// before applying
 resource "aws_ebs_volume" "data" {
   availability_zone = var.availability-zone
   size = var.ebs-data-size
