@@ -25,7 +25,7 @@ Content-Disposition: attachment; filename="userdata.txt"
 if (test -f /etc/systemd/system/${servicefile});
 then
   echo "-- STOP FOUNDRY SERVICE"
-  systemctl stop foundry.service
+  systemctl stop ${servicefile}
 fi
 
 # Wait for the EBS Data Volume to be available
@@ -91,9 +91,9 @@ then
 
   # Enable service
   echo "-- ENABLE AND START SERVICE"
-  systemctl enable foundry.service
-  systemctl start foundry.service
-  systemctl status foundry.service
+  systemctl enable ${servicefile}
+  systemctl start ${servicefile}
+  systemctl status ${servicefile}
 
 fi
 
