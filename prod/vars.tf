@@ -28,11 +28,6 @@ variable "availability-zone" {
   type    = string
 }
 
-variable "ssl-cert-arn" {
-  default = ""
-  type    = string
-}
-
 variable "hosted-zone-id" {
   default = ""
   type    = string

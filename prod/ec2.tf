@@ -38,7 +38,7 @@ resource "aws_instance" "foundry" {
   instance_type               = var.ec2-type
   subnet_id                   = data.terraform_remote_state.dsf.outputs.public_subnet_id
   key_name                    = aws_key_pair.foundry-key.key_name
-  associate_public_ip_address = false
+  associate_public_ip_address = true
 
   user_data = templatefile("../scripts/startup.tftpl", {
     serverdir: var.foundry-server-dir,
@@ -66,18 +66,16 @@ resource "aws_ebs_volume" "data" {
   availability_zone = var.availability-zone
   size = var.ebs-data-size
 
-  lifecycle {
-    prevent_destroy = true
-  }
-
   tags = {
     Type = "data"
   }
 }
 
+/*
 resource "aws_ebs_snapshot" "data" {
   volume_id = aws_ebs_volume.data.id
 }
+*/
 
 resource "aws_volume_attachment" "data" {
   device_name = var.ebs-data-device-name
